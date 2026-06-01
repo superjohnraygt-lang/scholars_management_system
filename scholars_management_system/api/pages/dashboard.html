@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply - Scholarship System</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Submit Scholarship Application</h2>
+            <button onclick="logout()" class="btn btn-secondary">Logout</button>
+        </div>
+        
+        <form id="applicationForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Full Name:</label>
+                <input type="text" name="full_name" placeholder="Juan Dela Cruz" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Address:</label>
+                <textarea name="address" placeholder="Complete address" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>School:</label>
+                <input type="text" name="school" placeholder="e.g., University of the Philippines" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Program/Course:</label>
+                <input type="text" name="program" placeholder="e.g., BS Computer Science" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Year Level:</label>
+                <select name="year_level" required>
+                    <option value="">Select Year Level</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>GWA (General Weighted Average):</label>
+                <input type="number" step="0.01" min="1.0" max="5.0" name="gwa" 
+                       placeholder="e.g., 1.75" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Certificate of Registration (PDF/Image):</label>
+                <input type="file" name="registration_cert" 
+                       accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+            
+            <div class="form-group">
+                <label>School ID (PDF/Image):</label>
+                <input type="file" name="school_id" 
+                       accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Copy of Grades (PDF/Image):</label>
+                <input type="file" name="grades" 
+                       accept=".jpg,.jpeg,.png,.pdf" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+        </form>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+        
+        document.getElementById('applicationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const response = await fetch('../api/controllers/application.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    e.target.reset();
+                } else {
+                    alert(result.message);
+                    if (result.details) {
+                        console.log(result.details);
+                    }
+                }
+            } catch (error) {
+                alert('Error submitting application: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Application';
+            }
+        });
+    </script>
+</body>
+</html>

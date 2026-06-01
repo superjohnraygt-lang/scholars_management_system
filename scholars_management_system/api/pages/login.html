@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Scholarship System</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Login to Your Account</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email (Gmail)" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const response = await fetch('../api/controllers/auth.php?action=login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                if (result.role === 'admin') {
+                    sessionStorage.setItem('user', JSON.stringify(result));
+                    window.location.href = 'admin.html';
+                } else {
+                    sessionStorage.setItem('user', JSON.stringify(result));
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                alert(result.message);
+            }
+        });
+    </script>
+</body>
+</html>
